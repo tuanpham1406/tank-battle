@@ -1,0 +1,28 @@
+// Geometry shared by rendering, the server, prediction and the minimap.
+export const TANK_HALF_WIDTH=1.225, TANK_HALF_LENGTH=1.45, TANK_HEIGHT=1.75;
+const phi=(1+Math.sqrt(5))/2;
+export const ROCK_VERTICES=[[-1,phi,0],[1,phi,0],[-1,-phi,0],[1,-phi,0],[0,-1,phi],[0,1,phi],[0,-1,-phi],[0,1,-phi],[phi,0,-1],[phi,0,1],[-phi,0,-1],[-phi,0,1]].map(v=>{const n=Math.hypot(...v);return v.map(c=>c/n);});
+export function appearance(o,prop){const ratio=o.maxHp?(prop?.hp??o.maxHp)/o.maxHp:1;const stage=ratio<=0?3:ratio<=.34?2:ratio<=.75?1:0;return {stage,scale:o.kind==='rock'?(stage===2?.9:stage===1?.96:1):1,lean:o.kind==='tree'?(stage===2?.1:stage===1?.035:0):0};}
+export function rockShape(o){return {sx:o.w*.58,sy:o.h*.7,sz:o.d*.58,y:o.h*.42,angle:(o.x+o.z)*.13};}
+function rectangle(x,z,hw,hl,angle=0){const c=Math.cos(angle),s=Math.sin(angle);return withBounds([[-hw,-hl],[hw,-hl],[hw,hl],[-hw,hl]].map(([px,pz])=>({x:x+px*c+pz*s,z:z-px*s+pz*c})));}
+export const tankPolygon=p=>rectangle(p.x,p.z,TANK_HALF_WIDTH,TANK_HALF_LENGTH,p.angle||0);
+function withBounds(poly){if(poly.length)poly.bounds={minX:Math.min(...poly.map(p=>p.x)),maxX:Math.max(...poly.map(p=>p.x)),minZ:Math.min(...poly.map(p=>p.z)),maxZ:Math.max(...poly.map(p=>p.z))};return poly;}
+function hull(points){const p=points.sort((a,b)=>a.x-b.x||a.z-b.z).filter((p,i,a)=>i===0||Math.abs(p.x-a[i-1].x)>1e-7||Math.abs(p.z-a[i-1].z)>1e-7);if(p.length<3)return withBounds(p);const cross=(a,b,c)=>(b.x-a.x)*(c.z-a.z)-(b.z-a.z)*(c.x-a.x),lower=[],upper=[];for(const point of p){while(lower.length>1&&cross(lower.at(-2),lower.at(-1),point)<=1e-8)lower.pop();lower.push(point);}for(const point of [...p].reverse()){while(upper.length>1&&cross(upper.at(-2),upper.at(-1),point)<=1e-8)upper.pop();upper.push(point);}lower.pop();upper.pop();return withBounds(lower.concat(upper));}
+const shapeCache=new WeakMap();
+export function obstaclePolygon(o,prop,low=0,high=TANK_HEIGHT){
+ if(o.maxHp&&prop?.hp===0)return [];
+ if(o.kind==='wall')return rectangle(o.x,o.z,o.w/2,o.d/2);
+ const look=appearance(o,prop),key=`${look.stage}:${low}:${high}`;let cache=shapeCache.get(o);if(!cache){cache=new Map();shapeCache.set(o,cache);}if(cache.has(key))return cache.get(key);
+ let vertices;
+ if(o.kind==='rock'){const shape=rockShape(o),c=Math.cos(shape.angle),s=Math.sin(shape.angle);vertices=ROCK_VERTICES.map(([x,y,z])=>({x:(x*shape.sx*c+z*shape.sz*s)*look.scale,y:(y*shape.sy+shape.y)*look.scale,z:(-x*shape.sx*s+z*shape.sz*c)*look.scale}));}
+ else {vertices=[];const c=Math.cos(look.lean),s=Math.sin(look.lean);for(const x of [-o.w*.325,o.w*.325])for(const y of [0,o.h*.7])for(const z of [-o.d*.325,o.d*.325])vertices.push({x:x*c-y*s,y:x*s+y*c,z});}
+ const points=vertices.filter(v=>v.y>=low-1e-7&&v.y<=high+1e-7).map(v=>({x:o.x+v.x,z:o.z+v.z}));
+ // Every edge is among these pairs. Additional interior segments cannot enlarge a convex slice.
+ for(let i=0;i<vertices.length;i++)for(let j=i+1;j<vertices.length;j++)for(const plane of low===high?[low]:[low,high]){const a=vertices[i],b=vertices[j];if(Math.abs(a.y-b.y)<1e-9)continue;const t=(plane-a.y)/(b.y-a.y);if(t>=0&&t<=1)points.push({x:o.x+a.x+(b.x-a.x)*t,z:o.z+a.z+(b.z-a.z)*t});}
+ const polygon=hull(points);cache.set(key,polygon);return polygon;
+}
+export function circleTouches(poly,x,z,r=0){if(poly.length<3)return false;const b=poly.bounds;if(x+r<b.minX||x-r>b.maxX||z+r<b.minZ||z-r>b.maxZ)return false;let inside=true,nearest=Infinity;for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length],dx=b.x-a.x,dz=b.z-a.z;if(dx*(z-a.z)-dz*(x-a.x)<-1e-8)inside=false;const t=Math.max(0,Math.min(1,((x-a.x)*dx+(z-a.z)*dz)/(dx*dx+dz*dz)));nearest=Math.min(nearest,(x-a.x-dx*t)**2+(z-a.z-dz*t)**2);}return inside||nearest<=r*r;}
+// Returns the minimum separation for convex A from convex B, or null when clear.
+export function separation(a,b){if(a.length<3||b.length<3)return null;const ba=a.bounds,bb=b.bounds;if(ba.maxX<=bb.minX+1e-7||bb.maxX<=ba.minX+1e-7||ba.maxZ<=bb.minZ+1e-7||bb.maxZ<=ba.minZ+1e-7)return null;let best=Infinity,result=null;for(const poly of [a,b])for(let i=0;i<poly.length;i++){const p=poly[i],q=poly[(i+1)%poly.length],length=Math.hypot(q.x-p.x,q.z-p.z);if(length<1e-9)continue;const nx=-(q.z-p.z)/length,nz=(q.x-p.x)/length;let amin=Infinity,amax=-Infinity,bmin=Infinity,bmax=-Infinity;for(const v of a){const dot=v.x*nx+v.z*nz;amin=Math.min(amin,dot);amax=Math.max(amax,dot);}for(const v of b){const dot=v.x*nx+v.z*nz;bmin=Math.min(bmin,dot);bmax=Math.max(bmax,dot);}if(amax<=bmin+1e-7||bmax<=amin+1e-7)return null;const negative=amax-bmin,positive=bmax-amin,amount=Math.min(negative,positive);if(amount<best){best=amount;const direction=negative<positive?-1:1;result={x:nx*direction*(amount+.0001),z:nz*direction*(amount+.0001)};}}return result;}
+export function contact(p,map,props,others=[]){const polygon=tankPolygon(p),b=polygon.bounds,edge=map.half-.5;if(b.maxX>edge)return {x:edge-b.maxX,z:0};if(b.minX<-edge)return {x:-edge-b.minX,z:0};if(b.maxZ>edge)return {x:0,z:edge-b.maxZ};if(b.minZ<-edge)return {x:0,z:-edge-b.minZ};for(const o of map.obstacles){const hit=separation(polygon,obstaclePolygon(o,props?.[o.id]));if(hit)return hit;}for(const other of others){if(other===p||other.hp<=0)continue;const hit=separation(polygon,tankPolygon(other));if(hit)return hit;}return null;}
+export function moveTank(p,distance,map,props,others=[]){const oldX=p.x,oldZ=p.z;p.x+=Math.sin(p.angle)*distance;p.z+=Math.cos(p.angle)*distance;for(let i=0;i<5;i++){const hit=contact(p,map,props,others);if(!hit)return Math.hypot(p.x-oldX,p.z-oldZ);p.x+=hit.x;p.z+=hit.z;}if(contact(p,map,props,others)){p.x=oldX;p.z=oldZ;}return Math.hypot(p.x-oldX,p.z-oldZ);}
