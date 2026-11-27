@@ -1,1 +1,1 @@
-{"name":"tank-battle-anh-tuan","private":true,"type":"module","scripts":{"start":"node server.js","test":"node --test tests/*.test.js"},"dependencies":{"ws":"8.18.3"}}
+{"name":"tank-battle-anh-tuan","private":true,"type":"module","scripts":{"start":"node server.js","test":"node --test tests/*.test.js"},"dependencies":{"ws":"8.21.0"}}
