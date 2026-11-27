@@ -141,3 +141,10 @@ chơi bình thường không cần thay đổi. `npm audit` ngày 27/11/2026 tr�
 đã biết trong cây phụ thuộc npm. Kết quả này không phải kiểm toán toàn bộ game.
 Có kiểm tra hồi quy lý do đóng kết nối thông thường và từ chối frame bị chia nhỏ
 quá mức. Các cảnh báo trên GitHub chỉ cập nhật sau khi bản vá được push và quét lại.
+
+### Kỹ năng
+
+- **1 — Tăng tốc:** tốc độ di chuyển tăng 60% trong 4 giây, hồi chiêu 12 giây kể từ lúc kích hoạt.
+- **2 — Buff giáp:** giáp toàn thân giảm 90% sát thương từ mọi hướng trong 8 giây, hồi chiêu 18 giây kể từ lúc kích hoạt.
+- Có thể bấm trực tiếp hai ô kỹ năng giữa HUD. Ô hiển thị thời gian còn lại, trạng thái đang dùng và vòng hồi chiêu sáng dần.
+- Áp dụng cho solo và PvP; server kiểm soát kích hoạt, hiệu lực và hồi chiêu trong PvP. Tạm dừng solo dừng cả bộ đếm; PvP vẫn tiếp tục. Gió tăng tốc chỉ hiện khi xe di chuyển, theo hướng di chuyển thực tế. Khiên nhấp nháy trong 2 giây cuối. Hồi sinh hủy hiệu lực đang dùng và giữ thời gian hồi còn lại.

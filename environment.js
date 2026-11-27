@@ -1,3 +1,4 @@
+import {createZoneSurface} from './zone-surfaces.js';
 import {appearance,rockShape} from './collision.js';
 import * as THREE from './vendor/three.module.js';
 import {getMap,surfaces} from './maps.js';
@@ -10,8 +11,8 @@ export class Environment {
  const cube=new THREE.BoxGeometry(1,1,1),rock=new THREE.IcosahedronGeometry(1,0),cone=new THREE.ConeGeometry(1,1,7);
  const mesh=(geometry,paint,x,y,z,sx,sy,sz,parent=this.group)=>{const o=new THREE.Mesh(geometry,paint);o.position.set(x,y,z);o.scale.set(sx,sy,sz);o.castShadow=o.receiveShadow=true;parent.add(o);return o;};
  mesh(cube,soil,0,-.4,0,m.half*5,.8,m.half*5);
- // Flat ellipses define real slow zones; their boundary matches the shared simulation.
- for(const zone of m.zones){const water=zone.kind==='water';const surface=new THREE.MeshStandardMaterial({color:surfaces[zone.kind].color,roughness:water?.22:1,metalness:water?.18:0,transparent:water,opacity:water?.88:1});const patch=new THREE.Mesh(new THREE.CircleGeometry(1,48),surface);patch.rotation.x=-Math.PI/2;patch.scale.set(zone.rx,zone.rz,1);patch.position.set(zone.x,.025,zone.z);patch.receiveShadow=true;this.group.add(patch);const ring=new THREE.Mesh(new THREE.RingGeometry(.97,1,48),new THREE.MeshBasicMaterial({color:water?0xb3d5cf:0xa2b3b4,transparent:true,opacity:.45,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.scale.set(zone.rx,zone.rz,1);ring.position.copy(patch.position);ring.position.y=.03;this.group.add(ring);}
+ this.zoneAnimations=[];
+ for(const zone of m.zones){const surface=createZoneSurface(zone);this.group.add(surface.root);this.zoneAnimations.push(...surface.animated);}
  for(const o of m.obstacles){
   const root=new THREE.Group();root.position.set(o.x,0,o.z);this.group.add(root);
   if(o.kind==='wall'){mesh(cube,stone,0,o.h/2,0,o.w,o.h,o.d,root);mesh(cube,soil,0,o.h+.08,0,o.w+.15,.16,o.d+.15,root);continue;}
@@ -41,7 +42,7 @@ export class Environment {
  }}
  impact(id){const prop=this.props.get(id);if(prop)prop.flash=.15;}
  trace(x,z,kind){if(kind==='ground'||this.ripples.length>18)return;const material=new THREE.MeshBasicMaterial({color:kind==='water'?0xc1e9ee:kind==='snow'?0xffffff:0xa18c69,transparent:true,opacity:.55,depthWrite:false,side:THREE.DoubleSide});const mesh=new THREE.Mesh(this.traceGeometry,material);mesh.rotation.x=-Math.PI/2;mesh.position.set(x,.065,z);this.group.add(mesh);this.ripples.push({mesh,life:.7});}
- update(dt){for(const prop of this.props.values()){prop.flash=Math.max(0,(prop.flash||0)-dt);prop.bodyMaterial.emissive.setHex(0xbd7640);prop.bodyMaterial.emissiveIntensity=prop.flash*2;}for(const prop of this.props.values())if(prop.fall>0){prop.fall+=dt;prop.live.rotation.z=Math.min(1.5,prop.fall*2);if(prop.fall>.8){prop.live.visible=false;prop.fall=0;}}
+ update(dt){this.elapsed+=dt;for(const {line,phase} of this.zoneAnimations||[]){line.material.opacity=.12+(.5+.5*Math.sin(this.elapsed*1.8+phase))*.16;line.position.z=Math.sin(this.elapsed*.8+phase)*.08;}for(const prop of this.props.values()){prop.flash=Math.max(0,(prop.flash||0)-dt);prop.bodyMaterial.emissive.setHex(0xbd7640);prop.bodyMaterial.emissiveIntensity=prop.flash*2;}for(const prop of this.props.values())if(prop.fall>0){prop.fall+=dt;prop.live.rotation.z=Math.min(1.5,prop.fall*2);if(prop.fall>.8){prop.live.visible=false;prop.fall=0;}}
  for(let i=this.ripples.length-1;i>=0;i--){const r=this.ripples[i];r.life-=dt;r.mesh.scale.setScalar(1+(.7-r.life)*2);r.mesh.material.opacity=Math.max(0,r.life*.7);if(r.life<=0){this.group.remove(r.mesh);r.mesh.material.dispose();this.ripples.splice(i,1);}}
  if(!this.weather||!this.enabled)return;const p=this.weather.geometry.attributes.position,m=this.map;const speed=m.weather==='rain'?15:m.weather==='snow'?1.8:.35;for(let i=0;i<p.count;i++){p.array[i*3+1]-=dt*speed;if(p.array[i*3+1]<.1)p.array[i*3+1]=22;p.array[i*3]+=dt*(m.weather==='dust'?1.8:.4);if(p.array[i*3]>m.half)p.array[i*3]=-m.half;}p.needsUpdate=true;
  }

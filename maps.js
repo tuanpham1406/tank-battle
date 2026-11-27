@@ -17,3 +17,7 @@ maps.desert.zones=[{x:0,z:12,rx:5,rz:4,kind:'water'},{x:-23,z:-8,rx:6,rz:4,kind:
 maps.forest.zones=[{x:0,z:11,rx:6,rz:5,kind:'water'},{x:18,z:-20,rx:7,rz:5,kind:'mud'},{x:-23,z:-13,rx:6,rz:5,kind:'mud'}];
 maps.alpine.zones=[{x:0,z:11,rx:7,rz:6,kind:'snow'},{x:-23,z:12,rx:8,rz:5,kind:'snow'},{x:22,z:-15,rx:7,rz:6,kind:'snow'}];
 for(const map of Object.values(maps))map.obstacles.forEach((o,id)=>{o.id=id;o.maxHp=o.kind==='tree'?75:o.kind==='rock'?125:0;});
+
+// One deterministic shoreline polygon is shared by rendering and movement.
+export function zoneOutline(zone){const seed=zone.x*.37+zone.z*.23;return Array.from({length:64},(_,i)=>{const a=i/64*Math.PI*2,r=.82+.09*Math.sin(a*3+seed)+.055*Math.cos(a*5-seed)+.025*Math.sin(a*9+seed);return {x:zone.x+Math.cos(a)*zone.rx*r,z:zone.z+Math.sin(a)*zone.rz*r};});}
+export function pointInZone(x,z,zone){const points=zone.outline??=zoneOutline(zone);let inside=false;for(let i=0,j=points.length-1;i<points.length;j=i++){const a=points[i],b=points[j];if((a.z>z)!==(b.z>z)&&x<(b.x-a.x)*(z-a.z)/(b.z-a.z)+a.x)inside=!inside;}return inside;}

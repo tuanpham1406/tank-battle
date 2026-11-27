@@ -13,6 +13,10 @@
  <aside class="health"><div><span>GIÁP XE TĂNG</span><strong id="hp">100%</strong></div><div class="bar"><i id="fill"></i></div><small id="enemies">CHỜ TRIỂN KHAI</small><small id="surface-status">ĐƯỜNG KHÔ · TỐC ĐỘ 100%</small></aside>
  <aside class="radar" aria-label="Bản đồ chiến trường"><div class="radar-heading"><span>CHIẾN TRƯỜNG</span><span class="radar-live">LIVE</span></div><canvas id="minimap" width="220" height="220" aria-label="Minimap: bạn màu xanh, đối thủ màu đỏ, vật cản màu xám"></canvas><div class="radar-legend"><span><i class="self-dot"></i>Bạn</span><span><i class="enemy-dot"></i>Địch</span><span><i class="cover-dot"></i>Vật cản</span></div></aside>
  <div class="tools" role="group" aria-label="Điều khiển game"><button id="sound" class="icon-button" aria-label="Tắt âm thanh"></button><button id="fullscreen" class="icon-button" aria-label="Toàn màn hình"></button><button id="pause" class="icon-button" aria-label="Tạm dừng"></button><button id="leave" class="icon-button" hidden aria-label="Rời game"></button></div>
+ <div class="skill-bar" role="group" aria-label="Kỹ năng xe tăng">
+  <button id="skill-boost" class="skill-slot" title="1 · Tăng tốc 60% trong 4 giây · Hồi chiêu 12 giây"><kbd>1</kbd><span class="skill-symbol" aria-hidden="true">ϟ</span><span class="skill-time"></span><strong>Tăng tốc</strong></button>
+  <button id="skill-armor" class="skill-slot" title="2 · Giáp toàn thân giảm 90% sát thương trong 8 giây · Hồi chiêu 18 giây"><kbd>2</kbd><svg class="skill-symbol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3 4 6v6c0 5 8 9 8 9s8-4 8-9V6Z"/><path d="M12 7v9M8 11h8"/></svg><span class="skill-time"></span><strong>Buff giáp</strong></button>
+ </div>
  <div id="announcement" role="status"></div><div id="crosshair">＋</div>
  <footer class="game-controls"><span><kbd>W</kbd><kbd>S</kbd> Tiến / lùi</span><span><kbd>A</kbd><kbd>D</kbd> Xoay xe</span><span>CHUỘT Ngắm & bắn</span><span><kbd>SPACE</kbd> Bắn</span><span><kbd>ESC</kbd> Tạm dừng</span></footer>
  <div id="overlay">

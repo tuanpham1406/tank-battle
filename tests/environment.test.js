@@ -15,3 +15,14 @@ test('rocks crack in stages, rubble remains, and surface traces do not depend on
 import {Multiplayer} from '../multiplayer.js';
 test('client prediction retains destruction state when sending input and passes a destroyed tree',()=>{
  const net=new Multiplayer({}),props=createProps('forest');props[6].hp=0;net.active=true;net.id='local';net.map='forest';net.props=props;net.local={x:0,z:23,angle:0,aimAngle:0,hp:100};net.socket={readyState:1,send(){}};const root=new THREE.Group(),turret=new THREE.Group();net.actors.set('local',{root,turret,net:{hp:100}});for(let i=0;i<40;i++)net.update(.04,{drive:1,turn:0,aim:0,fire:false});assert.equal(net.props,props);assert.ok(net.local.z>26);});
+
+test('irregular visible shoreline and authoritative slow zone share the same boundary',async()=>{
+ const {zoneOutline,pointInZone}=await import('../maps.js'),{terrainAt}=await import('../arena.js'),{createZoneSurface}=await import('../zone-surfaces.js');
+ for(const map of Object.values(maps))for(const zone of map.zones){
+  const outline=zoneOutline(zone),visual=createZoneSurface(zone),positions=visual.root.children[0].geometry.attributes.position;
+  assert.deepEqual(outline,zoneOutline(zone));assert.equal(pointInZone(zone.x,zone.z,zone),true);
+  const radii=outline.map(p=>Math.hypot((p.x-zone.x)/zone.rx,(p.z-zone.z)/zone.rz));assert.ok(Math.max(...radii)-Math.min(...radii)>.15);
+  outline.forEach((p,i)=>{assert.ok(Math.abs(positions.getX(i+1)-p.x)<.00001);assert.ok(Math.abs(positions.getZ(i+1)-p.z)<.00001);const inside={x:zone.x+(p.x-zone.x)*.99,z:zone.z+(p.z-zone.z)*.99},outside={x:zone.x+(p.x-zone.x)*1.01,z:zone.z+(p.z-zone.z)*1.01};assert.equal(terrainAt(inside.x,inside.z,map.id).kind,zone.kind);assert.equal(terrainAt(outside.x,outside.z,map.id).kind,'ground');});
+  visual.root.traverse(o=>{o.geometry?.dispose();o.material?.dispose();});
+ }
+});
