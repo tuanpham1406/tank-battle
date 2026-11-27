@@ -1,7 +1,6 @@
 # Tank Battle — Anh Tuấn
 
-Game xe tăng 3D bằng Three.js / JavaScript. Có chơi một người đấu AI và phòng PvP
-2–8 người. Không phải dự án Unity/C#.
+Game xe tăng 3D với những trận chiến trên sa mạc. Điều khiển xe, ngắm bắn, tận dụng vật cản và chiến đấu để giành điểm cao nhất. Chơi một mình chống lại các đợt tấn công của AI hoặc lập phòng đối đầu cùng bạn bè, tối đa 8 người.
 
 ## Chạy
 
