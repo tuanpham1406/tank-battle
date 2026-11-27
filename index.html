@@ -8,11 +8,14 @@
 </head>
 <body class="in-lobby">
  <canvas id="game" aria-label="Game xe tăng 3D"></canvas>
- <header class="game-header"><div class="brand"><span class="brand-icon" aria-hidden="true"></span><div>TANK BATTLE<small id="map-title">DUNES / 01</small></div></div><div class="identity"><span class="online"></span><div><small>NGƯỜI CHƠI</small><strong id="player-name">Anh Tuấn</strong></div><span class="avatar" id="avatar">AT</span></div></header>
+ <header class="game-header"><div class="brand"><span class="brand-icon" aria-hidden="true"></span><div>TANK BATTLE<small id="map-title">DUNES / 01</small></div></div><div class="identity"><span class="online"></span><div><small>NGƯỜI CHƠI</small><strong id="player-name">Người chơi</strong></div><span class="avatar" id="avatar">AT</span></div></header>
  <section class="stats"><div><small>ĐIỂM SỐ</small><strong id="score">0000</strong></div><div><small id="wave-label">ĐỢT TẤN CÔNG</small><strong id="wave">01</strong></div><div><small>KỶ LỤC</small><strong id="best">0000</strong></div></section>
  <aside class="health"><div><span>GIÁP XE TĂNG</span><strong id="hp">100%</strong></div><div class="bar"><i id="fill"></i></div><small id="enemies">CHỜ TRIỂN KHAI</small><small id="surface-status">ĐƯỜNG KHÔ · TỐC ĐỘ 100%</small></aside>
  <aside class="radar" aria-label="Bản đồ chiến trường"><div class="radar-heading"><span>CHIẾN TRƯỜNG</span><span class="radar-live">LIVE</span></div><canvas id="minimap" width="220" height="220" aria-label="Minimap: bạn màu xanh, đối thủ màu đỏ, vật cản màu xám"></canvas><div class="radar-legend"><span><i class="self-dot"></i>Bạn</span><span><i class="enemy-dot"></i>Địch</span><span><i class="cover-dot"></i>Vật cản</span></div></aside>
  <div class="tools" role="group" aria-label="Điều khiển game"><button id="sound" class="icon-button" aria-label="Tắt âm thanh"></button><button id="fullscreen" class="icon-button" aria-label="Toàn màn hình"></button><button id="pause" class="icon-button" aria-label="Tạm dừng"></button><button id="leave" class="icon-button" hidden aria-label="Rời game"></button></div>
+ <aside id="weapon-hud" class="weapon-hud" aria-label="Đạn và số mạng"><div><span>BĂNG ĐẠN</span><strong id="ammo-count">30 / 30</strong></div><div class="reload-track"><i id="reload-fill"></i></div><small id="reload-label">R · Nạp đạn</small><div class="lives-line"><span>MẠNG CÒN LẠI</span><strong id="lives-count">10 / 10</strong></div></aside>
+ <button id="scoreboard-toggle" class="scoreboard-toggle" hidden>Bảng điểm <kbd>Tab</kbd></button>
+ <section id="scoreboard" class="scoreboard" hidden aria-label="Bảng xếp hạng"><div class="scoreboard-panel"><div class="scoreboard-heading"><div><small id="scoreboard-room"></small><h2>BẢNG XẾP HẠNG</h2></div><button id="scoreboard-close" aria-label="Đóng bảng điểm">×</button></div><div class="scoreboard-scroll"><table><thead><tr><th>#</th><th>CHỈ HUY</th><th>ĐIỂM</th><th>HẠ GỤC</th><th>ĐÃ MẤT</th><th>CÒN LẠI</th></tr></thead><tbody id="scoreboard-rows"></tbody></table></div><p>Giữ Tab để xem · Mỗi người có 10 mạng</p></div></section>
  <div class="skill-bar" role="group" aria-label="Kỹ năng xe tăng">
   <button id="skill-boost" class="skill-slot" title="1 · Tăng tốc 60% trong 4 giây · Hồi chiêu 12 giây"><kbd>1</kbd><span class="skill-symbol" aria-hidden="true">ϟ</span><span class="skill-time"></span><strong>Tăng tốc</strong></button>
   <button id="skill-armor" class="skill-slot" title="2 · Giáp toàn thân giảm 90% sát thương trong 8 giây · Hồi chiêu 18 giây"><kbd>2</kbd><svg class="skill-symbol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3 4 6v6c0 5 8 9 8 9s8-4 8-9V6Z"/><path d="M12 7v9M8 11h8"/></svg><span class="skill-time"></span><strong>Buff giáp</strong></button>
@@ -38,7 +41,7 @@
      <div class="map-detail"><div><strong id="selected-map-name">Sa mạc vàng</strong><small id="map-description"></small></div></div>
      <div class="mode-tabs" role="group" aria-label="Chế độ chơi"><button id="mode-solo" aria-pressed="true">Một người</button><button id="mode-multi" aria-pressed="false">Cùng bạn bè</button></div>
      <div class="player-fields">
-      <div><label class="field-label" for="name">CHỈ HUY</label><input id="name" maxlength="24" value="Anh Tuấn" autocomplete="off"></div>
+      <div><label class="field-label" for="name">CHỈ HUY</label><input id="name" maxlength="24" value="" placeholder="Tên chỉ huy" autocomplete="off"></div>
       <div id="room-field" hidden><label class="field-label" for="room">MÃ PHÒNG</label><input id="room" maxlength="16" value="TANK01" autocomplete="off" pattern="[A-Za-z0-9-]+"></div>
      </div>
      <p id="room-rule">Chiến đấu với AI · Sống sót qua từng đợt tấn công và lập kỷ lục mới.</p>

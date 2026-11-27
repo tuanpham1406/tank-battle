@@ -1,4 +1,4 @@
-# Tank Battle — Anh Tuấn
+# Tank Battle
 
 Game xe tăng 3D với những trận chiến trên sa mạc. Điều khiển xe, ngắm bắn, tận dụng vật cản và chiến đấu để giành điểm cao nhất. Chơi một mình chống lại các đợt tấn công của AI hoặc lập phòng đối đầu cùng bạn bè, tối đa 8 người.
 
@@ -22,7 +22,7 @@ sơn để đổi màu ngay; kéo chuột hoặc focus khung xe rồi dùng phí
 Model xem trước dùng chung với model trong trận. Chọn thẻ **Chiến trường** có ảnh
 cảnh 3D để xem map.
 Chọn **Một người** hoặc **Cùng bạn bè**; mã phòng chỉ xuất hiện ở chế độ nhiều người.
-Hiệu ứng thời tiết được đặt trong mục **Hiệu ứng & tuỳ chọn** để màn hình gọn hơn.
+Hiệu ứng thời tiết có công tắc bật/tắt ngay trong màn hình chờ.
 Có Sa mạc vàng (88 × 88 m), Rừng sương (96 × 96 m), Đèo núi tuyết (104 × 104 m).
 Cây và các khối đá trong sân là vật cản có thể phá hủy; núi/cây ngoài tường là cảnh nền.
 Mặt sân vẫn bằng phẳng để lái xe; đây chưa phải mô phỏng leo núi hoặc địa hình dốc.
@@ -62,12 +62,15 @@ chặn nếu đâm trực diện. Minimap vẽ cùng đường bao vật cản. 
 
 ## Nhiều người
 
-Nhập tên (mặc định Anh Tuấn), mã phòng rồi chọn **Vào phòng nhiều người**.
+Tên chỉ huy được tạo ngẫu nhiên mỗi lần mở trang, có thể sửa trước khi chơi.
+Nhập mã phòng rồi chọn **Vào phòng chiến đấu**.
 Người đầu tiên tự tạo phòng; những người nhập cùng mã sẽ vào cùng trận.
 Có thể mở hai tab để thử trên một máy, đặt hai tên khác nhau.
 Đây là PvP, không sinh bot trong phòng. Mỗi lần hạ đối thủ được 100 điểm,
-xe hồi sinh sau 3 giây và được bảo vệ 2 giây. Điểm phòng chỉ lưu trong RAM;
-rời phòng mất điểm, phòng trống bị xóa. Nút **Rời phòng** trở về menu.
+mỗi người có **10 mạng**. Xe hồi sinh sau 3 giây, được bảo vệ 2 giây; sau lần bị hạ thứ 10 sẽ không hồi sinh, camera theo một người còn sống để xem trận.
+Giữ **Tab** để xem bảng xếp hạng, thả để đóng; có nút **Bảng điểm** để mở bằng chuột. Xếp hạng theo điểm giảm dần, hòa điểm ưu tiên ít lần bị hạ hơn.
+Điểm và số mạng phòng chỉ lưu trong RAM;
+rời phòng mất điểm và số mạng đã dùng, vào lại bắt đầu lượt mới; phòng trống bị xóa. Nút **Rời phòng** trở về menu.
 
 Để chơi bằng các máy trên cùng mạng tin cậy, dừng server rồi chạy:
 
@@ -84,6 +87,10 @@ Chưa thử nghiệm giữa hai máy vật lý hoặc mạng có độ trễ cao
 
 ## Điều khiển và độ mượt
 
+Mỗi băng có **30 viên**, hết băng tự nạp trong **3 giây**. Phím **R** nạp sớm.
+Đạn bay tối đa **32 m từ đầu nòng** với tốc độ 30 m/s; vật cản và mục tiêu vẫn chặn đạn trước khi hết tầm. Áp dụng solo/AI/PvP, server quyết định số đạn và thời gian nạp trong PvP.
+Solo có 10 mạng, hồi sinh sau 3 giây và giữ điểm/đợt tấn công; hết mạng trở về menu.
+
 W/S hoặc ↑/↓ tiến lùi; A/D hoặc ←/→ xoay; chuột ngắm; chuột trái hoặc Space bắn.
 Có tăng/giảm tốc mềm và quán tính quay, camera bám mềm.
 Xe của mình được dự đoán cục bộ rồi sửa theo server; xe khác được nội suy.
@@ -91,9 +98,7 @@ Server mô phỏng 60 tick/giây, gửi trạng thái 20 lần/giây; đầu và
 Server quyết định va chạm, sát thương, hồi sinh, điểm và thời gian hồi bắn.
 Chưa có bù độ trễ cho đạn hoặc replay đầu vào theo sequence.
 
-Esc / nút tạm dừng dừng phần chơi solo. Trong multiplayer, thao tác này chỉ
-ngừng điều khiển xe của bạn; trận và sát thương vẫn tiếp tục. Chuyển tab/mất focus
-cũng ngừng đầu vào để tránh xe tiếp tục chạy hoặc bắn.
+Esc / nút tạm dừng dừng phần chơi solo. Trong multiplayer, chỉ **chủ phòng** (người vào đầu tiên) được tạm dừng/tiếp tục cả trận. Server đóng băng di chuyển, đạn, sát thương, hồi sinh, nạp đạn và hồi chiêu; bảng điểm/kết nối/rời phòng vẫn hoạt động. Nếu chủ phòng rời đi, quyền chuyển cho người vào sớm nhất còn lại, kể cả khi trận đang dừng. Chuyển tab/mất focus chỉ xóa đầu vào của máy đó, không tự dừng phòng.
 
 Minimap ở góc phải hiển thị toàn sân: bạn màu xanh, đối thủ màu đỏ, vật cản màu
 xám. Mũi tên xanh chỉ hướng thân xe; xe đã bị hạ và vật cản đã phá sẽ không hiện.
@@ -147,4 +152,4 @@ quá mức. Các cảnh báo trên GitHub chỉ cập nhật sau khi bản vá �
 - **1 — Tăng tốc:** tốc độ di chuyển tăng 60% trong 4 giây, hồi chiêu 12 giây kể từ lúc kích hoạt.
 - **2 — Buff giáp:** giáp toàn thân giảm 90% sát thương từ mọi hướng trong 8 giây, hồi chiêu 18 giây kể từ lúc kích hoạt.
 - Có thể bấm trực tiếp hai ô kỹ năng giữa HUD. Ô hiển thị thời gian còn lại, trạng thái đang dùng và vòng hồi chiêu sáng dần.
-- Áp dụng cho solo và PvP; server kiểm soát kích hoạt, hiệu lực và hồi chiêu trong PvP. Tạm dừng solo dừng cả bộ đếm; PvP vẫn tiếp tục. Gió tăng tốc chỉ hiện khi xe di chuyển, theo hướng di chuyển thực tế. Khiên nhấp nháy trong 2 giây cuối. Hồi sinh hủy hiệu lực đang dùng và giữ thời gian hồi còn lại.
+- Áp dụng cho solo và PvP; server kiểm soát kích hoạt, hiệu lực và hồi chiêu trong PvP. Tạm dừng solo dừng cả bộ đếm; PvP vẫn tiếp tục. Gió tăng tốc chỉ hiện khi xe di chuyển, theo hướng di chuyển thực tế. Khiên nhấp nháy trong 2 giây cuối. Hồi sinh hủy hiệu lực đang dùng; PvP giữ thời gian hồi còn lại.
